@@ -1,0 +1,104 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                <property name="prefix" value="/WEB-INF/pages/"/>
+                <property name="suffix" value=".jsp"/>
+        </bean>
+
+
+        <!-- Database Information -->
+        <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+                <property name="jndiName" value="jdbc/Shop"/>
+        </bean>
+
+
+        <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+                <property name="dataSource" ref="dataSource"/>
+                <property name="configLocation" value="classpath:hibernate.cfg.xml" />
+        </bean>
+
+        <!--BookDao and BookService beans-->
+        <bean id="categoryDao" class="com.over.onlineshop.dao.CategoryDAOImpl">
+                <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+
+        <bean id="categoryService" class="com.over.onlineshop.services.CategoryServiceImpl">
+                <property name="categoryDAO" ref="categoryDao"/>
+        </bean>
+
+        <bean id="productDao" class="com.over.onlineshop.dao.ProductDAOImpl">
+                <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+
+        <bean id="productService" class="com.over.onlineshop.services.ProductServiceImpl">
+                <property name="productDAO" ref="productDao"/>
+        </bean>
+
+        <bean id="cartDAO" class="com.over.onlineshop.dao.CartDAOImpl">
+                <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+
+        <bean id="cartService" class="com.over.onlineshop.services.CartServiceImpl">
+                <property name="cartDAO" ref="cartDAO"/>
+        </bean>
+        <bean id="commentaryDAO" class="com.over.onlineshop.dao.CommentaryDAOImpl">
+                <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+        <bean id="commentaryService" class="com.over.onlineshop.services.CommentaryServiceImpl">
+                <property name="commentaryDAO" ref="commentaryDAO"/>
+        </bean>
+
+
+        <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+                <property name="dataSource" ref="dataSource"/>
+                <property name="packagesToScan" value="com.over.onlineshop.entities"/>
+                <property name="jpaVendorAdapter">
+                        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+                </property>
+                <property name="jpaProperties">
+                        <props>
+                                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                                <prop key="hibernate.show_sql">true</prop>
+                        </props>
+                </property>
+        </bean>
+
+        <mvc:resources mapping="/resources/**" location="resources/" />
+
+        <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+                <property name="basenames">
+                        <list>
+                                <value>classpath:validation</value>
+                        </list>
+                </property>
+        </bean>
+
+        <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+                <property name="maxUploadSize" value="10000000"/>
+        </bean>
+
+
+
+
+        <jpa:repositories base-package="com.over.onlineshop.dao.login"/>
+
+
+
+        <bean id="transactionManager"
+              class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+                <property name="sessionFactory" ref="sessionFactory" />
+                <property name="dataSource" ref="dataSource"/>
+        </bean>
+
+        <tx:annotation-driven />
+        <mvc:default-servlet-handler/>
+        <mvc:annotation-driven/>
+
+
+</beans>
